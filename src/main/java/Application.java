@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 
 public class Application {
+    public static final int WRITE_START_ADDR = 0;
+    public static final int WRITE_END_ADDR = 4;
     final private DeviceDriver deviceDriver;
 
     public Application(DeviceDriver deviceDriver) {
@@ -18,7 +20,7 @@ public class Application {
     }
 
     public void WriteAll(byte value) throws WriteFailException{
-        for (int addr = 0; addr <= 4; addr++) {
+        for (int addr = WRITE_START_ADDR; addr <= WRITE_END_ADDR; addr++) {
             deviceDriver.write(addr, value);
         }
     }

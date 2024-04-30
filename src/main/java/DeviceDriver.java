@@ -3,10 +3,10 @@ import static java.lang.Thread.sleep;
 /**
  * This class is used by the operating system to interact with the hardware 'FlashMemoryDevice'.
  */
-class ReadFailException extends Exception {}
-class WriteFailException extends Exception {}
 
 public class DeviceDriver {
+    public static final byte EMPTY_DATA = (byte) 0xFF;
+    public static final int READ_CHECK_COUNT = 5;
     final private FlashMemoryDevice hardware;
 
     public DeviceDriver(FlashMemoryDevice hardware) {
@@ -15,13 +15,13 @@ public class DeviceDriver {
 
     public byte read(long address) throws ReadFailException{
         byte[] readResult = new byte[5];
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < READ_CHECK_COUNT; i++) {
             readResult[i] = hardware.read(address);
-            if (i < 4) {
+            if (i < READ_CHECK_COUNT - 1) {
                 delay200ms();
             }
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < READ_CHECK_COUNT - 1; i++) {
             if (readResult[i] != readResult[i + 1]) {
                 throw new ReadFailException();
             }
@@ -38,7 +38,7 @@ public class DeviceDriver {
 
     public void write(long address, byte data) throws WriteFailException{
         try {
-            if (read(address) == (byte)0xFF) {
+            if (read(address) == EMPTY_DATA) {
                 hardware.write(address, data);
             }
             else {
