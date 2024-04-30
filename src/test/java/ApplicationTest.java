@@ -15,9 +15,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class ApplicationTest {
     private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
-    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     private final PrintStream originalOut = System.out;
-    private final PrintStream originalErr = System.err;
 
     Application app;
 
@@ -27,7 +25,6 @@ class ApplicationTest {
     @BeforeEach
     void setUp() {
         System.setOut(new PrintStream(outContent));
-        System.setErr(new PrintStream(errContent));
         app = new Application(deviceDriver);
     }
 
@@ -45,9 +42,21 @@ class ApplicationTest {
         }
     }
 
+    @Test
+    void ReadAndPrintFail() {
+        try {
+            when(deviceDriver.read(0)).thenReturn((byte)0);
+            when(deviceDriver.read(1)).thenReturn((byte)1);
+            when(deviceDriver.read(2)).thenThrow(ReadFailException.class);
+            app.ReadAndPrint(0, 3);
+            fail();
+        } catch(ReadFailException e) {
+
+        }
+    }
+
     @AfterEach
     void tearDown() {
         System.setOut(originalOut);
-        System.setErr(originalErr);
     }
 }
