@@ -14,19 +14,14 @@ public class DeviceDriver {
     }
 
     public byte read(long address) throws ReadFailException{
-        byte[] readResult = new byte[5];
-        for (int i = 0; i < READ_CHECK_COUNT; i++) {
-            readResult[i] = hardware.read(address);
-            if (i < READ_CHECK_COUNT - 1) {
-                delay200ms();
-            }
-        }
-        for (int i = 0; i < READ_CHECK_COUNT - 1; i++) {
-            if (readResult[i] != readResult[i + 1]) {
+        byte firstReadData = hardware.read(address);
+        for (int i = 1; i < READ_CHECK_COUNT; i++) {
+            delay200ms();
+            if (firstReadData != hardware.read(address)) {
                 throw new ReadFailException();
             }
         }
-        return readResult[0];
+        return firstReadData;
     }
 
     public void delay200ms() {

@@ -1,2 +1,2 @@
-class ReadFailException extends Exception {}
-class WriteFailException extends Exception {}
+class ReadFailException extends RuntimeException {}
+class WriteFailException extends RuntimeException {}

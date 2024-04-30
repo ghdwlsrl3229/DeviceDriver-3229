@@ -16,23 +16,30 @@ public class DeviceDriverTest {
     FlashMemoryDevice hardware;
 
     @Spy
-    @InjectMocks // hardware mock을 driver에 주입
+    @InjectMocks
     DeviceDriver driver;
 
     @BeforeEach
     void setUp() {
-        // delay 함수를 stubbing해서 read의 200ms 딜레이를 제거
+        // 테스트시 delay 함수의 200ms 딜레이를 제거
         doNothing().when(driver).delay200ms();
     }
 
     @Test
+    void ReadFiveTimes() {
+        doReturn((byte)0).when(hardware).read(0xFF);
+
+        try {
+            driver.read(0xFF);
+            verify(hardware, times(5)).read(0xFF);
+        } catch (ReadFailException e) {
+
+        }
+    }
+
+    @Test
     void ReadFromHardwareSuccess() {
-        when(hardware.read(0xFF))
-                .thenReturn((byte)0)
-                .thenReturn((byte)0)
-                .thenReturn((byte)0)
-                .thenReturn((byte)0)
-                .thenReturn((byte)0);
+        when(hardware.read(0xFF)).thenReturn((byte)0);
 
         try {
             byte data = driver.read(0xFF);
@@ -59,12 +66,7 @@ public class DeviceDriverTest {
 
     @Test
     void WriteToHardwareSuccess() {
-        when(hardware.read(0xFF))
-                .thenReturn((byte)0xFF)
-                .thenReturn((byte)0xFF)
-                .thenReturn((byte)0xFF)
-                .thenReturn((byte)0xFF)
-                .thenReturn((byte)0xFF);
+        when(hardware.read(0xFF)).thenReturn((byte)0xFF);
 
         try {
             driver.write(0xFF, (byte)0);
@@ -77,12 +79,7 @@ public class DeviceDriverTest {
 
     @Test
     void WriteToHardwareFailByNonEmptyData() {
-        when(hardware.read(0xFF))
-                .thenReturn((byte)0)
-                .thenReturn((byte)0)
-                .thenReturn((byte)0)
-                .thenReturn((byte)0)
-                .thenReturn((byte)0);
+        when(hardware.read(0xFF)).thenReturn((byte)0);
 
         assertThrows(WriteFailException.class, () -> {
             driver.write(0xFF, (byte)0);
