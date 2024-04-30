@@ -1,4 +1,4 @@
-import org.junit.jupiter.api.AfterAll;
+import net.bytebuddy.asm.MemberSubstitution;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationTest {
@@ -51,6 +51,35 @@ class ApplicationTest {
             app.ReadAndPrint(0, 3);
             fail();
         } catch(ReadFailException e) {
+
+        }
+    }
+
+    @Test
+    void WriteAllSuccess() {
+        try {
+            app.WriteAll((byte) 3);
+            verify(deviceDriver, times(1)).write(0, (byte)3);
+            verify(deviceDriver, times(1)).write(1, (byte)3);
+            verify(deviceDriver, times(1)).write(2, (byte)3);
+            verify(deviceDriver, times(1)).write(3, (byte)3);
+            verify(deviceDriver, times(1)).write(4, (byte)3);
+        } catch (WriteFailException e) {
+            fail();
+        }
+    }
+
+    @Test
+    void WriteAllFail() {
+        try {
+            doNothing().when(deviceDriver).write(0, (byte)3);
+            doThrow(WriteFailException.class).when(deviceDriver).write(1, (byte)3);
+
+            app.WriteAll((byte) 3);
+            verify(deviceDriver, times(1)).write(0, (byte)3);
+            verify(deviceDriver, times(1)).write(1, (byte)3);
+            fail();
+        } catch (WriteFailException e) {
 
         }
     }

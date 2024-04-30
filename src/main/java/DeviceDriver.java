@@ -7,7 +7,7 @@ class ReadFailException extends Exception {}
 class WriteFailException extends Exception {}
 
 public class DeviceDriver {
-    private FlashMemoryDevice hardware;
+    final private FlashMemoryDevice hardware;
 
     public DeviceDriver(FlashMemoryDevice hardware) {
         this.hardware = hardware;
